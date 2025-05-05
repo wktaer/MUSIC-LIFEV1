@@ -140,32 +140,38 @@
   </main>
 
   <!-- Player Bar -->
-  <div id="playerBar" class="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4 flex items-center gap-4 z-40">
-    <img id="playerCover" src="" alt="Cover" class="h-12 w-12 rounded object-cover hidden" />
-    <div class="flex-1 min-w-0">
-      <p id="playerSongName" class="text-white font-medium truncate"></p>
-      <p id="playerAlbumName" class="text-zinc-400 text-sm truncate"></p>
+  <div id="playerBar" class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-zinc-900 to-zinc-800 border-t border-zinc-700 p-4 flex items-center gap-4 z-40 shadow-lg backdrop-blur-sm bg-opacity-95">
+    <img id="playerCover" src="" alt="Cover" class="h-14 w-14 rounded-lg object-cover shadow-md hidden transition-all duration-300 hover:scale-105" />
+    <div class="flex-1 min-w-0 ml-2">
+      <p id="playerSongName" class="text-white font-medium truncate text-lg"></p>
+      <p id="playerArtist" class="text-green-400 text-sm truncate"></p>
+      <!-- Barra de progreso mini -->
+      <div class="w-full h-1 bg-zinc-700 rounded-full mt-1 overflow-hidden">
+        <div id="miniProgressBar" class="h-full bg-gradient-to-r from-green-500 to-blue-500 rounded-full" style="width: 0%"></div>
+      </div>
     </div>
-    <button id="playPauseButton" onclick="togglePlayPause()" class="text-white p-2 rounded-full bg-green-600 hover:bg-green-500 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-      </svg>
-    </button>
-    <button onclick="playPreviousSong()" class="text-white p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-    <button onclick="playNextSong()" class="text-white p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-      </svg>
-    </button>
-    <button onclick="showFullPlayer()" class="text-white p-2 rounded-full bg-green-600 hover:bg-green-500 transition-colors">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 10h6M16 14h6M16 18h6" />
-      </svg>
-    </button>
+    <div class="flex items-center gap-3">
+      <button onclick="playPreviousSong()" class="text-white p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors hover:scale-110 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button id="playPauseButton" onclick="togglePlayPause()" class="text-white p-3 rounded-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 transition-all shadow-md hover:shadow-lg hover:scale-110 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+        </svg>
+      </button>
+      <button onclick="playNextSong()" class="text-white p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors hover:scale-110 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+      <button onclick="showFullPlayer()" class="text-white p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors ml-2 hover:scale-110 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Overlay para crear un álbum nuevo -->
@@ -1959,11 +1965,176 @@
     });
   </script>
   <script>
+    // Función para continuar reproduciendo una canción después de cargar su archivo
+    function continuePlayingSong(song) {
+      try {
+        console.log("Continuando reproducción de canción:", song.name);
+        console.log("URL del archivo:", song.file);
+        
+        // Detener la canción actual si existe
+        if (currentAudio) {
+          currentAudio.pause();
+          // Liberar recursos del audio anterior
+          currentAudio.src = '';
+          currentAudio = null;
+        }
+        
+        // Verificar que la URL del archivo sea válida
+        if (!song.file || typeof song.file !== 'string' || song.file.trim() === '') {
+          console.error("URL de archivo inválida:", song.file);
+          alert("El archivo de audio no es válido. Por favor, intenta agregar la canción nuevamente.");
+          return;
+        }
+        
+        // Crear un nuevo objeto de audio
+        currentAudio = new Audio();
+        
+        // Configurar eventos antes de asignar la fuente
+        currentAudio.addEventListener('canplaythrough', function() {
+          console.log("Audio listo para reproducción sin interrupciones");
+        });
+        
+        // Configurar evento para cuando termine la canción
+        currentAudio.onended = function() {
+          console.log("Canción terminada, reproduciendo la siguiente");
+          playNextSong();
+        };
+        
+        // Configurar evento para errores
+        currentAudio.onerror = function(e) {
+          console.error("Error al reproducir el audio:", e);
+          console.error("Código de error:", currentAudio.error ? currentAudio.error.code : "desconocido");
+          
+          // Intentar recrear el blob desde IndexedDB si hay un error
+          if (song.audioId) {
+            console.log("Intentando recuperar audio nuevamente por ID:", song.audioId);
+            
+            const transaction = db.transaction(['audioFiles'], 'readonly');
+            const store = transaction.objectStore('audioFiles');
+            const request = store.get(song.audioId);
+            
+            request.onsuccess = function(event) {
+              const audioFile = event.target.result;
+              if (audioFile) {
+                console.log("Audio recuperado correctamente, intentando reproducir de nuevo");
+                const blob = new Blob([audioFile.data], { type: audioFile.type });
+                const newUrl = URL.createObjectURL(blob);
+                
+                // Actualizar la URL en el objeto de canción
+                song.file = newUrl;
+                
+                // Intentar reproducir de nuevo con la nueva URL
+                const newAudio = new Audio(newUrl);
+                currentAudio = newAudio;
+                
+                // Configurar volumen
+                const savedVolume = localStorage.getItem('volume') || 100;
+                currentAudio.volume = savedVolume / 100;
+                
+                currentAudio.play()
+                  .then(() => {
+                    console.log("Reproducción iniciada correctamente en segundo intento");
+                    isPlaying = true;
+                    updatePlayerInterface(song);
+                  })
+                  .catch(error => {
+                    console.error("Error en segundo intento:", error);
+                    alert("No se pudo reproducir la canción. Intenta con otro navegador o verifica que el archivo sea compatible.");
+                  });
+              } else {
+                alert("No se pudo recuperar el archivo de audio. Por favor, intenta agregar la canción nuevamente.");
+              }
+            };
+          } else {
+            alert("Error al reproducir la canción. Por favor, inténtalo de nuevo.");
+          }
+          
+          isPlaying = false;
+          updatePlayPauseButton();
+          updateFullPlayerButton();
+        };
+        
+        // Configurar el volumen según el valor guardado
+        const savedVolume = localStorage.getItem('volume') || 100;
+        currentAudio.volume = savedVolume / 100;
+        
+        // Asignar la fuente después de configurar los eventos
+        currentAudio.src = song.file;
+        
+        // Cargar el audio
+        currentAudio.load();
+        
+        // Iniciar la reproducción
+        const playPromise = currentAudio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log("Reproducción iniciada correctamente");
+              isPlaying = true;
+              updatePlayerInterface(song);
+            })
+            .catch(error => {
+              console.error("Error al iniciar la reproducción:", error);
+              
+              // Intentar reproducir después de una interacción del usuario
+              alert("Para reproducir música, haz clic en 'Aceptar' y luego presiona el botón de reproducción nuevamente.");
+              
+              // Preparar para reproducción manual
+              isPlaying = false;
+              updatePlayPauseButton();
+              updateFullPlayerButton();
+            });
+        }
+      } catch (error) {
+        console.error("Error en continuePlayingSong:", error);
+        alert("Ocurrió un error al reproducir la canción.");
+      }
+    }
+    
+    // Función auxiliar para actualizar la interfaz del reproductor
+    function updatePlayerInterface(song) {
+      // Actualizar la interfaz del reproductor
+      document.getElementById('playerCover').src = albums[currentAlbumIndex].image;
+      document.getElementById('playerCover').classList.remove('hidden');
+      document.getElementById('playerSongName').textContent = song.name;
+      document.getElementById('playerArtist').textContent = albums[currentAlbumIndex].artist;
+      
+      // Actualizar los botones
+      updatePlayPauseButton();
+      updateFullPlayerButton();
+      
+      // Si el reproductor completo está abierto, actualizar su información
+      if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
+        document.getElementById('fullPlayerCover').src = albums[currentAlbumIndex].image;
+        document.getElementById('fullPlayerTitle').textContent = song.name;
+        document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
+        updateFullPlayerProgress();
+      }
+      
+      // Configurar actualización de la barra de progreso mini
+      if (currentAudio) {
+        // Actualizar la barra de progreso mini cada segundo
+        setInterval(updateMiniProgressBar, 1000);
+      }
+    }
+    
+    // Función para actualizar la barra de progreso mini
+    function updateMiniProgressBar() {
+      if (!currentAudio) return;
+      
+      const progressPercent = (currentAudio.currentTime / currentAudio.duration) * 100;
+      const miniProgressBar = document.getElementById('miniProgressBar');
+      if (miniProgressBar) {
+        miniProgressBar.style.width = `${progressPercent}%`;
+      }
+    }
+  </script>
+  
+  <script>
     // Inicializar la aplicación
     initIndexedDB();
     renderAlbums();
-    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
-    document.getElementById('playerBar').addEventListener('click', showFullPlayer);
     setupVolumeControl(); // Inicializar el control de volumen
   </script>
   
@@ -2101,7 +2272,7 @@
       // Actualizar la interfaz del reproductor
       document.getElementById('playerCover').src = albums[currentAlbumIndex].image;
       document.getElementById('playerCover').classList.remove('hidden');
-      document.getElementById('playerTitle').textContent = song.name;
+      document.getElementById('playerSongName').textContent = song.name;
       document.getElementById('playerArtist').textContent = albums[currentAlbumIndex].artist;
       
       // Actualizar los botones
@@ -2115,16 +2286,24 @@
         document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
         updateFullPlayerProgress();
       }
+      
+      // Configurar actualización de la barra de progreso mini
+      if (currentAudio) {
+        // Actualizar la barra de progreso mini cada segundo
+        setInterval(updateMiniProgressBar, 1000);
+      }
     }
-  </script>
-  
-  <script>
-    // Inicializar la aplicación
-    initIndexedDB();
-    renderAlbums();
-    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
-    document.getElementById('playerBar').addEventListener('click', showFullPlayer);
-    setupVolumeControl(); // Inicializar el control de volumen
+    
+    // Función para actualizar la barra de progreso mini
+    function updateMiniProgressBar() {
+      if (!currentAudio) return;
+      
+      const progressPercent = (currentAudio.currentTime / currentAudio.duration) * 100;
+      const miniProgressBar = document.getElementById('miniProgressBar');
+      if (miniProgressBar) {
+        miniProgressBar.style.width = `${progressPercent}%`;
+      }
+    }
   </script>
 </body>
 </html>
