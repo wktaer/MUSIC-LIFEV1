@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Album Details - Music Life</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #000;
+      color: white;
+    }
+    .album-cover {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+    .song-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .song-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .song-number {
+      width: 24px;
+      text-align: center;
+      margin-right: 16px;
+      color: #aaa;
+    }
+    .song-info {
+      flex: 1;
+    }
+    .song-title {
+      font-weight: 500;
+    }
+    .song-plays {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .play-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .play-button:hover {
+      transform: scale(1.1);
+      color: #1db954;
+    }
+    .duration {
+      color: #aaa;
+      margin-left: 16px;
+      font-size: 14px;
+    }
+    .player-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #111;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-top: 1px solid #333;
+    }
+    .now-playing {
+      flex: 1;
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .add-song-button {
+      background-color: #1db954;
+      color: white;
+      border: none;
+      border-radius: 24px;
+      padding: 10px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .add-song-button:hover {
+      background-color: #1aa34a;
+    }
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #aaa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-button:hover {
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 bg-zinc-900 p-6 flex flex-col gap-6 shadow-2xl fixed top-0 left-0 h-full">
+    <h1 class="text-3xl font-bold text-white">🎧 My Music</h1>
+    <nav class="flex flex-col gap-4 text-zinc-400">
+      <a href="index.html" class="hover:text-white transition-all">Inicio</a>
+      <a href="#" class="hover:text-white transition-all">Álbumes</a>
+      <a href="#" class="hover:text-white transition-all">Canciones</a>
+      <a href="#" class="hover:text-white transition-all">Configuración</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content flex-1 p-8 pl-80 pt-16 pb-24 overflow-auto">
+    <a href="index.html" class="back-button mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Volver a Álbumes
+    </a>
+
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Album Cover and Info -->
+      <div class="flex flex-col items-center md:items-start">
+        <img id="albumCover" src="" alt="Album Cover" class="album-cover mb-4">
+        <h1 id="albumTitle" class="text-3xl font-bold"></h1>
+        <p id="albumArtist" class="text-zinc-400 mt-1"></p>
+        <p class="text-zinc-400 mt-1">Álbum • <span id="albumYear">2017</span></p>
+        <div class="flex gap-4 mt-6">
+          <button class="add-song-button" onclick="addSongToAlbum()">+ Agregar Canción</button>
+        </div>
+      </div>
+
+      <!-- Song List -->
+      <div class="flex-1">
+        <div id="songList" class="flex flex-col gap-1 mt-4">
+          <!-- Songs will be added here dynamically -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Player Bar -->
+  <div class="player-bar">
+    <div class="now-playing">
+      <div id="currentSongTitle" class="font-medium">No hay canción reproduciendo</div>
+      <div id="currentSongArtist" class="text-sm text-zinc-400"></div>
+    </div>
+    <div class="controls">
+      <button class="play-button" id="playPauseButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Get the current album from localStorage
+    const albums = JSON.parse(localStorage.getItem('albums')) || [];
+    const currentAlbumIndex = parseInt(localStorage.getItem('currentAlbumIndex'), 10);
+    let currentAlbum = albums[currentAlbumIndex];
+    let currentAudio = null;
+    let currentSongIndex = -1;
+    let isPlaying = false;
+
+    // Load album data
+    function loadAlbumData() {
+      console.log("Loading album data...");
+      console.log("Current album index:", currentAlbumIndex);
+      console.log("Albums:", albums);
+      
+      if (!currentAlbum) {
+        console.log("No current album found, redirecting to index");
+        window.location.href = 'index.html';
+        return;
+      }
+
+      document.title = `${currentAlbum.name} - ${currentAlbum.artist}`;
+      document.getElementById('albumCover').src = currentAlbum.image;
+      document.getElementById('albumTitle').textContent = currentAlbum.name;
+      document.getElementById('albumArtist').textContent = currentAlbum.artist;
+      
+      renderSongs();
+    }
+
+    // Initialize immediately instead of waiting for DOMContentLoaded
+    loadAlbumData();
+    
+    // Also keep the event listener as a backup
+    document.addEventListener('DOMContentLoaded', loadAlbumData);
+
+    // Render songs
+    function renderSongs() {
+      const songList = document.getElementById('songList');
+      songList.innerHTML = '';
+
+      currentAlbum.songs.forEach((song, index) => {
+        // Generate random play count between 1K and 500M
+        const plays = Math.floor(Math.random() * 500000) + 1000;
+        const formattedPlays = plays >= 1000000 
+          ? (plays / 1000000).toFixed(1) + ' M' 
+          : (plays / 1000).toFixed(0) + ' K';
+        
+        // Generate random duration between 2:00 and 5:00
+        const minutes = Math.floor(Math.random() * 3) + 2;
+        const seconds = Math.floor(Math.random() * 60);
+        const duration = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+        const songItem = document.createElement('div');
+        songItem.className = 'song-item';
+        songItem.innerHTML = `
+          <div class="song-number">${index + 1}</div>
+          <div class="song-info">
+            <div class="song-title">${song.name}</div>
+            <div class="song-plays">${formattedPlays} reproducciones</div>
+          </div>
+          <button class="play-button" onclick="playSong(${index})">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+          <div class="duration">${duration}</div>
+        `;
+        songList.appendChild(songItem);
+      });
+    }
+
+    // Play a song
+    function playSong(index) {
+      // Stop current song if playing
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+      }
+
+      const song = currentAlbum.songs[index];
+      currentSongIndex = index;
+      
+      // Create new audio
+      currentAudio = new Audio(song.file);
+      currentAudio.play();
+      isPlaying = true;
+      
+      // Update player UI
+      document.getElementById('currentSongTitle').textContent = song.name;
+      document.getElementById('currentSongArtist').textContent = currentAlbum.artist;
+      updatePlayPauseButton();
+      
+      // When song ends
+      currentAudio.onended = function() {
+        // Play next song if available
+        if (currentSongIndex < currentAlbum.songs.length - 1) {
+          playSong(currentSongIndex + 1);
+        } else {
+          isPlaying = false;
+          updatePlayPauseButton();
+        }
+      };
+    }
+
+    // Toggle play/pause
+    function togglePlayPause() {
+      if (!currentAudio) {
+        if (currentAlbum.songs.length > 0) {
+          playSong(0);
+        }
+        return;
+      }
+      
+      if (isPlaying) {
+        currentAudio.pause();
+        isPlaying = false;
+      } else {
+        currentAudio.play();
+        isPlaying = true;
+      }
+      
+      updatePlayPauseButton();
+    }
+
+    // Update play/pause button icon
+    function updatePlayPauseButton() {
+      const button = document.getElementById('playPauseButton');
+      
+      if (isPlaying) {
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        `;
+      } else {
+        button.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        `;
+      }
+    }
+
+    // Add a song to the album
+    function addSongToAlbum() {
+      const name = prompt('Nombre de la canción:');
+      const file = prompt('URL de la canción (YouTube, Spotify, o archivo local):');
+      
+      if (!name || !file) return;
+      
+      currentAlbum.songs.push({ name, file });
+      albums[currentAlbumIndex] = currentAlbum;
+      localStorage.setItem('albums', JSON.stringify(albums));
+      
+      renderSongs();
+    }
+
+    // Initialize
+    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
+  </script>
+</body>
+</html>
