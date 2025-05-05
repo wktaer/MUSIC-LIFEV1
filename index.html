@@ -66,7 +66,15 @@
     
     <!-- Album List View -->
     <div id="albumListView">
-      <h2 class="text-3xl font-bold mb-6">Mis Álbumes</h2>
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">Mis Álbumes</h2>
+        <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nuevo Álbum
+        </button>
+      </div>
       <div id="albumsContainer" class="grid grid-cols-2 gap-6">
         <!-- Álbumes dinámicos -->
       </div>
@@ -377,6 +385,60 @@
       <div class="flex justify-end gap-2">
         <button onclick="closeEditSongOverlay()" class="px-4 py-2 bg-zinc-700 rounded hover:bg-zinc-600 transition-colors">Cancelar</button>
         <button onclick="saveSongChanges()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay para crear un álbum -->
+  <div id="createAlbumOverlay" class="hidden fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+    <div class="bg-zinc-900 p-8 rounded-2xl w-full max-w-md space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <h3 class="text-2xl font-bold text-white">Nuevo Álbum</h3>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Nombre del Álbum</label>
+        <input id="newAlbumName" type="text" placeholder="Ej: The Dark Side of the Moon" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Artista</label>
+        <input id="newAlbumArtist" type="text" placeholder="Ej: Pink Floyd" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Año de Lanzamiento</label>
+        <input id="newAlbumYear" type="number" min="1900" max="2099" step="1" placeholder="Ej: 1973" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Género</label>
+        <select id="newAlbumGenre" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors">
+          <option value="">Selecciona un género</option>
+          <option value="Pop">Pop</option>
+          <option value="Rock">Rock</option>
+          <option value="Hip Hop">Hip Hop</option>
+          <option value="R&B">R&B</option>
+          <option value="Electrónica">Electrónica</option>
+          <option value="Jazz">Jazz</option>
+          <option value="Clásica">Clásica</option>
+          <option value="Reggaeton">Reggaeton</option>
+          <option value="Indie">Indie</option>
+          <option value="Metal">Metal</option>
+          <option value="Folk">Folk</option>
+          <option value="Country">Country</option>
+          <option value="Blues">Blues</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Portada</label>
+        <input id="newAlbumImage" type="file" accept="image/*" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+        <p class="text-xs text-zinc-500 mt-1">Formatos recomendados: JPG, PNG (tamaño cuadrado)</p>
+      </div>
+      
+      <div class="flex justify-end gap-2">
+        <button onclick="closeCreateAlbumOverlay()" class="px-4 py-2 bg-zinc-700 rounded hover:bg-zinc-600 transition-colors">Cancelar</button>
+        <button onclick="createNewAlbum()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors">Crear Álbum</button>
       </div>
     </div>
   </div>
@@ -903,8 +965,31 @@
     function renderAlbums() {
       const container = document.getElementById('albumsContainer');
       container.innerHTML = '';
-      container.className = 'grid grid-cols-2 gap-6';
       
+      // Si no hay álbumes, mostrar mensaje y botón para crear uno
+      if (albums.length === 0) {
+        container.className = 'flex flex-col items-center justify-center p-8 bg-zinc-800 rounded-2xl';
+        const emptyState = document.createElement('div');
+        emptyState.className = 'text-center';
+        emptyState.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 mx-auto text-zinc-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+          <h3 class="text-xl font-semibold mb-2">No tienes álbumes</h3>
+          <p class="text-zinc-400 mb-6">Crea tu primer álbum para comenzar a disfrutar de tu música</p>
+          <button onclick="showCreateAlbumOverlay()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Crear Álbum
+          </button>
+        `;
+        container.appendChild(emptyState);
+        return;
+      }
+      
+      // Si hay álbumes, mostrarlos en la cuadrícula
+      container.className = 'grid grid-cols-2 gap-6';
       albums.forEach((album, index) => {
         const div = document.createElement('div');
         div.className = 'bg-zinc-800 rounded-2xl p-4 flex flex-col gap-4 shadow-lg hover:shadow-xl transition-all';
@@ -1278,84 +1363,6 @@
       continuePlayingSong(song);
     }
     
-    // Función auxiliar para continuar reproduciendo la canción
-    function continuePlayingSong(song) {
-      try {
-        console.log("Continuando reproducción con:", song);
-        
-        // Crear un nuevo objeto de audio
-        currentAudio = new Audio(song.file);
-        
-        // Configurar eventos
-        currentAudio.addEventListener('ended', function() {
-          console.log("Canción terminada, reproduciendo siguiente");
-          playNextSong();
-        });
-        
-        currentAudio.addEventListener('loadedmetadata', function() {
-          console.log("Metadatos cargados, duración:", currentAudio.duration);
-          // Actualizar la duración en el reproductor completo
-          if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
-            const durationMinutes = Math.floor(currentAudio.duration / 60);
-            const durationSeconds = Math.floor(currentAudio.duration % 60);
-            document.getElementById('fullPlayerDuration').textContent = 
-              `${durationMinutes}:${durationSeconds.toString().padStart(2, '0')}`;
-          }
-        });
-        
-        currentAudio.addEventListener('error', function(e) {
-          console.error("Error en el elemento de audio:", e);
-          alert("Error al reproducir el archivo de audio. Es posible que el formato no sea compatible o el archivo esté dañado.");
-        });
-        
-        // Reproducir la canción
-        const playPromise = currentAudio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error reproduciendo audio:", error);
-            alert("No se pudo iniciar la reproducción automáticamente. Haz clic en reproducir para comenzar.");
-            isPlaying = false;
-            updatePlayPauseButton();
-            updateFullPlayerButton();
-          });
-        }
-        
-        isPlaying = true;
-        
-        // Actualizar la información en la barra del reproductor
-        document.getElementById('playerSongName').textContent = song.name;
-        document.getElementById('playerAlbumName').textContent = albums[currentAlbumIndex].name;
-        
-        // Mostrar la portada del álbum en la barra del reproductor
-        const playerCover = document.getElementById('playerCover');
-        playerCover.src = albums[currentAlbumIndex].image;
-        playerCover.classList.remove('hidden');
-        
-        // Mostrar la barra del reproductor
-        document.getElementById('playerBar').classList.remove('hidden');
-        
-        // Actualizar la interfaz
-        updatePlayPauseButton();
-        updateFullPlayerButton();
-        
-        // Actualizar la barra de progreso si el reproductor completo está visible
-        if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
-          updateFullPlayerProgress();
-        }
-        
-        // Actualizar la información en el reproductor completo
-        document.getElementById('fullPlayerTitle').textContent = song.name;
-        document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
-        document.getElementById('fullPlayerCover').src = albums[currentAlbumIndex].image;
-        
-        console.log("Reproducción iniciada correctamente");
-      } catch (error) {
-        console.error("Error en continuePlayingSong:", error);
-        alert("Ocurrió un error al reproducir la canción. Por favor, inténtalo de nuevo.");
-      }
-    }
-    
     // Funciones para el control de volumen
     function setupVolumeControl() {
       // Obtener el volumen guardado en localStorage o usar 100 como valor predeterminado
@@ -1590,6 +1597,81 @@
       const transaction = db.transaction(['audioFiles'], 'readwrite');
       const store = transaction.objectStore('audioFiles');
       store.delete(audioId);
+    }
+
+    // Funciones para el overlay de creación de álbumes
+    function showCreateAlbumOverlay() {
+      document.getElementById('createAlbumOverlay').classList.remove('hidden');
+      // Limpiar el formulario
+      document.getElementById('newAlbumName').value = '';
+      document.getElementById('newAlbumArtist').value = '';
+      document.getElementById('newAlbumYear').value = '';
+      document.getElementById('newAlbumGenre').value = '';
+      document.getElementById('newAlbumImage').value = '';
+    }
+    
+    function closeCreateAlbumOverlay() {
+      document.getElementById('createAlbumOverlay').classList.add('hidden');
+    }
+    
+    function createNewAlbum() {
+      const name = document.getElementById('newAlbumName').value.trim();
+      const artist = document.getElementById('newAlbumArtist').value.trim();
+      const year = document.getElementById('newAlbumYear').value;
+      const genre = document.getElementById('newAlbumGenre').value;
+      const imageFile = document.getElementById('newAlbumImage').files[0];
+      
+      // Validaciones básicas
+      if (!name) {
+        alert('Por favor, ingresa el nombre del álbum');
+        return;
+      }
+      
+      if (!artist) {
+        alert('Por favor, ingresa el nombre del artista');
+        return;
+      }
+      
+      // Crear un objeto para el nuevo álbum
+      const newAlbum = {
+        name,
+        artist,
+        year,
+        genre,
+        songs: [],
+        image: 'https://via.placeholder.com/300x300?text=Sin+Imagen' // Imagen por defecto
+      };
+      
+      // Si se seleccionó una imagen, procesarla
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          newAlbum.image = e.target.result;
+          // Guardar el álbum y actualizar la interfaz
+          saveNewAlbum(newAlbum);
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        // Guardar el álbum sin imagen personalizada
+        saveNewAlbum(newAlbum);
+      }
+    }
+    
+    function saveNewAlbum(album) {
+      // Añadir el álbum al array
+      albums.push(album);
+      
+      // Guardar en localStorage
+      localStorage.setItem('albums', JSON.stringify(albums));
+      
+      // Cerrar el overlay
+      closeCreateAlbumOverlay();
+      
+      // Actualizar la interfaz
+      renderAlbums();
+      
+      // Mostrar mensaje de éxito
+      alert('¡Álbum creado con éxito!');
     }
   </script>
 </body>
