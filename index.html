@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Music Life</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,13 +15,14 @@
       margin: 0;
       padding: 0;
       overflow-x: hidden;
+      -webkit-text-size-adjust: 100%; /* Previene ajuste automático de texto en iOS */
     }
 
     /* Estilos para el contenido principal */
     .main-content {
       margin-left: 0;
       padding: 20px;
-      padding-bottom: 80px; /* Espacio para la barra del reproductor */
+      padding-bottom: 100px; /* Espacio aumentado para la barra del reproductor */
     }
 
     /* Estilos para las portadas de álbumes */
@@ -30,6 +31,7 @@
       aspect-ratio: 1/1;
       object-fit: cover;
       border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     /* Estilos para la barra del reproductor */
@@ -44,14 +46,130 @@
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid #282828;
+      z-index: 50;
     }
 
     /* Estilos responsivos para móviles */
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
       .main-content {
-        margin-left: 0;
         padding: 15px;
-        padding-bottom: 90px; /* Espacio para el player bar */
+        padding-bottom: 120px;
+      }
+      
+      #albumsContainer {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+      
+      #albumDetailView .flex {
+        flex-direction: column;
+      }
+      
+      #detailAlbumCover {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+      }
+      
+      .song-item {
+        padding: 8px !important;
+      }
+      
+      .song-title {
+        font-size: 14px !important;
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+      }
+      
+      .song-actions button {
+        padding: 4px !important;
+      }
+      
+      .song-actions svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+    
+    /* Estilos para las canciones en la vista de detalle */
+    .song-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      background-color: rgba(255, 255, 255, 0.05);
+      transition: background-color 0.2s;
+    }
+    
+    .song-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .song-info {
+      flex: 1;
+      min-width: 0; /* Importante para que funcione el truncate */
+      margin-right: 8px;
+    }
+    
+    .song-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      display: block;
+    }
+    
+    .song-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    
+    /* Estilos para ocultar la barra de desplazamiento */
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+    
+    /* Animación de marquesina para títulos largos */
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .animate-marquee {
+      white-space: nowrap;
+      animation: marquee 15s linear infinite;
+      animation-play-state: paused;
+    }
+    
+    /* Solo animar cuando el texto es más largo que su contenedor */
+    .overflow-x-auto:hover .animate-marquee {
+      animation-play-state: running;
+    }
+    
+    /* Estilos para el reproductor en móviles */
+    @media (max-width: 640px) {
+      #playerBar {
+        padding: 12px 10px !important;
+      }
+      
+      #playerSongName {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+      }
+      
+      #playerArtist {
+        font-size: 13px !important;
       }
     }
   </style>
@@ -69,6 +187,18 @@
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold">Mis Álbumes</h2>
         <div class="flex flex-wrap gap-2">
+          <div class="flex items-center bg-zinc-800 rounded-lg p-1 mr-2">
+            <button onclick="setAlbumColumns(1)" id="oneColumnBtn" class="px-3 py-1 rounded-lg transition-colors" title="Una columna">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <button onclick="setAlbumColumns(2)" id="twoColumnBtn" class="px-3 py-1 rounded-lg bg-green-600 transition-colors" title="Dos columnas">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h7M4 12h7M4 18h7M13 6h7M13 12h7M13 18h7" />
+              </svg>
+            </button>
+          </div>
           <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -141,12 +271,15 @@
 
   <!-- Player Bar -->
   <div id="playerBar" class="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-zinc-900 to-zinc-800 border-t border-zinc-700 p-4 flex items-center gap-4 z-40 shadow-lg backdrop-blur-sm bg-opacity-95">
-    <img id="playerCover" src="" alt="Cover" class="h-14 w-14 rounded-lg object-cover shadow-md hidden transition-all duration-300 hover:scale-105" />
-    <div class="flex-1 min-w-0 ml-2">
-      <p id="playerSongName" class="text-white font-medium truncate text-lg"></p>
+    <img id="playerCover" src="" alt="Cover" class="h-16 w-16 rounded-lg object-cover shadow-md hidden transition-all duration-300 hover:scale-105" />
+    <div class="flex-1 min-w-0 ml-2 pr-2">
+      <div class="w-full overflow-x-auto whitespace-nowrap scrollbar-hide pb-1">
+        <p id="playerSongName" class="text-white font-bold text-xl inline-block animate-marquee"></p>
+      </div>
       <p id="playerArtist" class="text-green-400 text-sm truncate"></p>
+      <p id="playerLyrics" class="text-zinc-400 text-xs truncate mt-1 italic hidden"></p>
       <!-- Barra de progreso mini -->
-      <div class="w-full h-1 bg-zinc-700 rounded-full mt-1 overflow-hidden">
+      <div class="w-full h-2 bg-zinc-700 rounded-full mt-1 overflow-hidden">
         <div id="miniProgressBar" class="h-full bg-gradient-to-r from-green-500 to-blue-500 rounded-full" style="width: 0%"></div>
       </div>
     </div>
@@ -426,8 +559,15 @@
       
       <div class="mb-6">
         <label class="block text-sm font-medium text-zinc-400 mb-2">Seleccionar Canciones (múltiples)</label>
-        <input id="fullAlbumSongs" type="file" accept="audio/*" multiple capture="filesystem" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" onchange="previewSelectedSongs()" />
+        <input id="fullAlbumSongs" type="file" accept="audio/*" multiple class="hidden" onchange="previewSelectedSongs()" />
+        <button type="button" onclick="activateFileInput()" class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Seleccionar Múltiples Archivos</span>
+        </button>
         <p class="text-xs text-zinc-500 mt-1">Selecciona múltiples archivos de audio para crear el álbum completo</p>
+        <p id="selectedFilesCount" class="text-sm text-green-500 mt-2 hidden"></p>
       </div>
       
       <div id="songsPreviewContainer" class="mb-6 hidden">
@@ -949,7 +1089,6 @@
         button.innerHTML = `
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         `;
       }
@@ -990,7 +1129,7 @@
         div.innerHTML = `
           <img src="${album.image}" alt="Cover" class="album-cover mx-auto" />
           <div class="text-center">
-            <h3 class="text-xl font-semibold truncate">${album.name}</h3>
+            <h3 class="text-xl font-bold truncate">${album.name}</h3>
             <p class="text-zinc-400 text-sm truncate">${album.artist}</p>
             ${album.year ? `<p class="text-zinc-500 text-xs">${album.year}</p>` : ''}
             ${album.genre ? `<p class="text-zinc-500 text-xs">${album.genre}</p>` : ''}
@@ -1034,50 +1173,38 @@
       
       albums[currentAlbumIndex].songs.forEach((song, index) => {
         const div = document.createElement('div');
-        div.className = 'flex items-center justify-between p-3 hover:bg-zinc-800 rounded-lg transition-colors group';
+        div.className = 'song-item';
         
-        // Información básica de la canción
-        let songInfo = `
+        // Información de la canción
+        const songInfo = `
           <div class="flex items-center flex-1 min-w-0">
-            <span class="text-zinc-400 w-8 text-center">${index + 1}</span>
-            <div class="flex-1 min-w-0">
-              <p class="font-medium truncate">${song.name}</p>
-              <div class="flex flex-wrap gap-2 mt-1">
-        `;
-        
-        // Añadir metadatos si existen
-        if (song.date) {
-          songInfo += `<span class="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">${new Date(song.date).toLocaleDateString()}</span>`;
-        }
-        if (song.genre) {
-          songInfo += `<span class="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">${song.genre}</span>`;
-        }
-        
-        songInfo += `
-              </div>
+            <div class="text-zinc-400 w-8 text-center">${index + 1}</div>
+            <div class="song-info">
+              <div class="song-title">${song.name}</div>
+              <div class="text-zinc-500 text-xs">${song.date ? new Date(song.date).toLocaleDateString() : ''}</div>
             </div>
           </div>
         `;
         
         // Botones de acción
         const actionButtons = `
-          <div class="flex items-center gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-            <button onclick="showEditSongOverlay(${index})" class="text-zinc-400 hover:text-white p-2" title="Editar canción">
+          <div class="song-actions">
+            <button onclick="showEditSongOverlay(${index})" class="text-zinc-400 hover:text-white p-2" title="Editar">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
-            <button onclick="confirmDeleteSong(${index})" class="text-red-500 hover:text-red-400 p-2" title="Eliminar canción">
+            <button onclick="confirmDeleteSong(${index})" class="text-zinc-400 hover:text-red-500 p-2" title="Eliminar">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
-            <button onclick="moveSongUp(${index})" class="text-zinc-400 hover:text-white p-2" title="Mover hacia arriba" ${index === 0 ? 'disabled style="opacity: 0.5;"' : ''}>
+            <button onclick="moveSongUp(${index})" class="text-zinc-400 hover:text-white p-2" title="Mover arriba" ${index === 0 ? 'disabled style="opacity: 0.5;"' : ''}>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
               </svg>
             </button>
-            <button onclick="moveSongDown(${index})" class="text-zinc-400 hover:text-white p-2" title="Mover hacia abajo" ${index === albums[currentAlbumIndex].songs.length - 1 ? 'disabled style="opacity: 0.5;"' : ''}>
+            <button onclick="moveSongDown(${index})" class="text-zinc-400 hover:text-white p-2" title="Mover abajo" ${index === albums[currentAlbumIndex].songs.length - 1 ? 'disabled style="opacity: 0.5;"' : ''}>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
@@ -1323,159 +1450,6 @@
       updatePlayPauseButton();
       updateFullPlayerButton();
     }
-    
-    // Modificar la función playSong para actualizar también el reproductor completo
-    function playSong(index) {
-      // Detener la canción actual si existe
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio = null;
-      }
-      
-      currentSongIndex = index;
-      const song = albums[currentAlbumIndex].songs[index];
-      
-      // Verificar si la canción tiene un archivo asociado
-      if (!song.file) {
-        console.error("La canción no tiene un archivo asociado");
-        
-        // Si la canción tiene un ID de audio almacenado, intentar recuperarlo
-        if (song.audioId) {
-          console.log("Intentando recuperar audio por ID:", song.audioId);
-          
-          const transaction = db.transaction(['audioFiles'], 'readonly');
-          const store = transaction.objectStore('audioFiles');
-          const request = store.get(song.audioId);
-          
-          request.onsuccess = function(event) {
-            const audioFile = event.target.result;
-            if (audioFile) {
-              console.log("Audio recuperado correctamente");
-              const blob = new Blob([audioFile.data], { type: audioFile.type });
-              song.file = URL.createObjectURL(blob);
-              continuePlayingSong(song);
-            } else {
-              promptForAudioFile(index);
-            }
-          };
-          
-          request.onerror = function(event) {
-            console.error("Error al recuperar el archivo de audio:", event.target.error);
-            promptForAudioFile(index);
-          };
-        } else {
-          promptForAudioFile(index);
-        }
-        return;
-      }
-      
-      continuePlayingSong(song);
-    }
-    
-    // Funciones para el control de volumen
-    function setupVolumeControl() {
-      // Obtener el volumen guardado en localStorage o usar 100 como valor predeterminado
-      const savedVolume = localStorage.getItem('volume') || 100;
-      const volumeControl = document.getElementById('volumeControl');
-      
-      // Establecer el valor inicial del control de volumen
-      volumeControl.value = savedVolume;
-      
-      // Aplicar el volumen al audio actual si existe
-      if (currentAudio) {
-        currentAudio.volume = savedVolume / 100;
-      }
-      
-      // Actualizar el icono de volumen
-      updateVolumeIcon(savedVolume);
-      
-      // Agregar evento para cambios en el control de volumen
-      volumeControl.addEventListener('input', function() {
-        const volume = this.value;
-        
-        // Aplicar el volumen al audio actual
-        if (currentAudio) {
-          currentAudio.volume = volume / 100;
-        }
-        
-        // Guardar el volumen en localStorage
-        localStorage.setItem('volume', volume);
-        
-        // Actualizar el icono de volumen
-        updateVolumeIcon(volume);
-      });
-    }
-    
-    // Función para actualizar el icono de volumen según el nivel
-    function updateVolumeIcon(volume) {
-      const volumeIcon = document.getElementById('volumeIcon');
-      
-      if (volume == 0) {
-        // Icono de silencio
-        volumeIcon.innerHTML = `
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-        `;
-      } else if (volume < 50) {
-        // Icono de volumen bajo
-        volumeIcon.innerHTML = `
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072" />
-        `;
-      } else {
-        // Icono de volumen alto
-        volumeIcon.innerHTML = `
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-        `;
-      }
-    }
-    
-    // Función para alternar entre silencio y volumen
-    function toggleMute() {
-      const volumeControl = document.getElementById('volumeControl');
-      
-      if (currentAudio) {
-        if (currentAudio.volume > 0) {
-          // Guardar el volumen actual antes de silenciar
-          localStorage.setItem('previousVolume', volumeControl.value);
-          
-          // Silenciar
-          currentAudio.volume = 0;
-          volumeControl.value = 0;
-          updateVolumeIcon(0);
-        } else {
-          // Restaurar el volumen anterior
-          const previousVolume = localStorage.getItem('previousVolume') || 100;
-          currentAudio.volume = previousVolume / 100;
-          volumeControl.value = previousVolume;
-          updateVolumeIcon(previousVolume);
-        }
-        
-        // Guardar el volumen actual en localStorage
-        localStorage.setItem('volume', volumeControl.value);
-      }
-    }
-    
-    // Modificar la función togglePlayPause para actualizar también el reproductor completo
-    function togglePlayPause() {
-      if (!currentAudio) {
-        if (albums[currentAlbumIndex].songs.length > 0) {
-          playSong(0);
-        }
-        return;
-      }
-      
-      if (isPlaying) {
-        currentAudio.pause();
-        isPlaying = false;
-      } else {
-        currentAudio.play();
-        isPlaying = true;
-      }
-      
-      updatePlayPauseButton();
-      updateFullPlayerButton();
-    }
 
     // Variables para el álbum completo
     let selectedSongFiles = [];
@@ -1547,6 +1521,11 @@
         // Añadir a la lista
         previewList.appendChild(songPreview);
       });
+      
+      // Mostrar el número de archivos seleccionados
+      const selectedFilesCount = document.getElementById('selectedFilesCount');
+      selectedFilesCount.textContent = `Seleccionaste ${selectedSongFiles.length} archivos`;
+      selectedFilesCount.classList.remove('hidden');
     }
     
     // Función para formatear el tamaño del archivo
@@ -1582,7 +1561,7 @@
         }
         
         if (!artist) {
-          alert('Por favor, introduce el nombre del artista');
+          alert('Por favor, ingresa el nombre del artista');
           return;
         }
         
@@ -1964,6 +1943,7 @@
       }
     });
   </script>
+  
   <script>
     // Función para continuar reproduciendo una canción después de cargar su archivo
     function continuePlayingSong(song) {
@@ -1977,6 +1957,12 @@
           // Liberar recursos del audio anterior
           currentAudio.src = '';
           currentAudio = null;
+        }
+        
+        currentSongIndex = -1;
+        const songIndex = albums[currentAlbumIndex].songs.findIndex(s => s.name === song.name);
+        if (songIndex !== -1) {
+          currentSongIndex = songIndex;
         }
         
         // Verificar que la URL del archivo sea válida
@@ -2100,6 +2086,15 @@
       document.getElementById('playerSongName').textContent = song.name;
       document.getElementById('playerArtist').textContent = albums[currentAlbumIndex].artist;
       
+      // Mostrar la letra de la canción si existe
+      const playerLyrics = document.getElementById('playerLyrics');
+      if (song.lyrics && song.lyrics.trim() !== '') {
+        playerLyrics.textContent = song.lyrics;
+        playerLyrics.classList.remove('hidden');
+      } else {
+        playerLyrics.classList.add('hidden');
+      }
+      
       // Actualizar los botones
       updatePlayPauseButton();
       updateFullPlayerButton();
@@ -2127,183 +2122,95 @@
       const miniProgressBar = document.getElementById('miniProgressBar');
       if (miniProgressBar) {
         miniProgressBar.style.width = `${progressPercent}%`;
+      }
+    }
+  </script>
+  
+  <script>
+    // Función para activar el input de archivos
+    function activateFileInput() {
+      try {
+        const fileInput = document.getElementById('fullAlbumSongs');
+        
+        // Asegurarnos de que el atributo multiple esté presente
+        fileInput.setAttribute('multiple', 'multiple');
+        
+        // En dispositivos iOS, a veces es necesario forzar la actualización del atributo
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+          const clone = fileInput.cloneNode(true);
+          fileInput.parentNode.replaceChild(clone, fileInput);
+          setTimeout(() => {
+            clone.click();
+          }, 100);
+          return;
+        }
+        
+        // Para otros dispositivos, usar el método estándar
+        fileInput.click();
+        
+        console.log("Input de archivos activado");
+      } catch (error) {
+        console.error("Error al activar el input de archivos:", error);
+        alert("Hubo un problema al abrir el selector de archivos. Intenta tocar directamente en el botón.");
+      }
+    }
+  </script>
+  
+  <script>
+    // Función para cambiar el número de columnas en la vista de álbumes
+    function setAlbumColumns(cols) {
+      try {
+        // Convertir a número para asegurar la comparación correcta
+        const columns = Number(cols);
+        
+        const albumsContainer = document.getElementById('albumsContainer');
+        const oneColumnBtn = document.getElementById('oneColumnBtn');
+        const twoColumnBtn = document.getElementById('twoColumnBtn');
+        
+        console.log("Cambiando a", columns, "columnas");
+        
+        // Guardar preferencia en localStorage
+        localStorage.setItem('albumColumns', columns);
+        
+        // Aplicar los cambios según el número de columnas
+        if (columns === 1) {
+          // Cambiar a una columna
+          albumsContainer.setAttribute('class', 'grid grid-cols-1 gap-6');
+          oneColumnBtn.setAttribute('class', 'px-3 py-1 rounded-lg bg-green-600 text-white transition-colors');
+          twoColumnBtn.setAttribute('class', 'px-3 py-1 rounded-lg transition-colors');
+        } else {
+          // Cambiar a dos columnas
+          albumsContainer.setAttribute('class', 'grid grid-cols-2 gap-6');
+          twoColumnBtn.setAttribute('class', 'px-3 py-1 rounded-lg bg-green-600 text-white transition-colors');
+          oneColumnBtn.setAttribute('class', 'px-3 py-1 rounded-lg transition-colors');
+        }
+      } catch (error) {
+        console.error("Error al cambiar columnas:", error);
+      }
+    }
+    
+    // Función para cargar la preferencia de columnas al iniciar
+    function loadColumnPreference() {
+      try {
+        const savedColumns = localStorage.getItem('albumColumns');
+        if (savedColumns) {
+          setAlbumColumns(Number(savedColumns));
+        }
+      } catch (error) {
+        console.error("Error al cargar preferencia de columnas:", error);
       }
     }
   </script>
   
   <script>
     // Inicializar la aplicación
-    initIndexedDB();
-    renderAlbums();
-    setupVolumeControl(); // Inicializar el control de volumen
-  </script>
-  
-  <!-- Script de inicialización -->
-  <script>
-    // Función para continuar reproduciendo una canción después de cargar su archivo
-    function continuePlayingSong(song) {
-      try {
-        console.log("Continuando reproducción de canción:", song.name);
-        console.log("URL del archivo:", song.file);
-        
-        // Detener la canción actual si existe
-        if (currentAudio) {
-          currentAudio.pause();
-          // Liberar recursos del audio anterior
-          currentAudio.src = '';
-          currentAudio = null;
-        }
-        
-        // Verificar que la URL del archivo sea válida
-        if (!song.file || typeof song.file !== 'string' || song.file.trim() === '') {
-          console.error("URL de archivo inválida:", song.file);
-          alert("El archivo de audio no es válido. Por favor, intenta agregar la canción nuevamente.");
-          return;
-        }
-        
-        // Crear un nuevo objeto de audio
-        currentAudio = new Audio();
-        
-        // Configurar eventos antes de asignar la fuente
-        currentAudio.addEventListener('canplaythrough', function() {
-          console.log("Audio listo para reproducción sin interrupciones");
-        });
-        
-        // Configurar evento para cuando termine la canción
-        currentAudio.onended = function() {
-          console.log("Canción terminada, reproduciendo la siguiente");
-          playNextSong();
-        };
-        
-        // Configurar evento para errores
-        currentAudio.onerror = function(e) {
-          console.error("Error al reproducir el audio:", e);
-          console.error("Código de error:", currentAudio.error ? currentAudio.error.code : "desconocido");
-          
-          // Intentar recrear el blob desde IndexedDB si hay un error
-          if (song.audioId) {
-            console.log("Intentando recuperar audio nuevamente por ID:", song.audioId);
-            
-            const transaction = db.transaction(['audioFiles'], 'readonly');
-            const store = transaction.objectStore('audioFiles');
-            const request = store.get(song.audioId);
-            
-            request.onsuccess = function(event) {
-              const audioFile = event.target.result;
-              if (audioFile) {
-                console.log("Audio recuperado correctamente, intentando reproducir de nuevo");
-                const blob = new Blob([audioFile.data], { type: audioFile.type });
-                const newUrl = URL.createObjectURL(blob);
-                
-                // Actualizar la URL en el objeto de canción
-                song.file = newUrl;
-                
-                // Intentar reproducir de nuevo con la nueva URL
-                const newAudio = new Audio(newUrl);
-                currentAudio = newAudio;
-                
-                // Configurar volumen
-                const savedVolume = localStorage.getItem('volume') || 100;
-                currentAudio.volume = savedVolume / 100;
-                
-                currentAudio.play()
-                  .then(() => {
-                    console.log("Reproducción iniciada correctamente en segundo intento");
-                    isPlaying = true;
-                    updatePlayerInterface(song);
-                  })
-                  .catch(error => {
-                    console.error("Error en segundo intento:", error);
-                    alert("No se pudo reproducir la canción. Intenta con otro navegador o verifica que el archivo sea compatible.");
-                  });
-              } else {
-                alert("No se pudo recuperar el archivo de audio. Por favor, intenta agregar la canción nuevamente.");
-              }
-            };
-          } else {
-            alert("Error al reproducir la canción. Por favor, inténtalo de nuevo.");
-          }
-          
-          isPlaying = false;
-          updatePlayPauseButton();
-          updateFullPlayerButton();
-        };
-        
-        // Configurar el volumen según el valor guardado
-        const savedVolume = localStorage.getItem('volume') || 100;
-        currentAudio.volume = savedVolume / 100;
-        
-        // Asignar la fuente después de configurar los eventos
-        currentAudio.src = song.file;
-        
-        // Cargar el audio
-        currentAudio.load();
-        
-        // Iniciar la reproducción
-        const playPromise = currentAudio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              console.log("Reproducción iniciada correctamente");
-              isPlaying = true;
-              updatePlayerInterface(song);
-            })
-            .catch(error => {
-              console.error("Error al iniciar la reproducción:", error);
-              
-              // Intentar reproducir después de una interacción del usuario
-              alert("Para reproducir música, haz clic en 'Aceptar' y luego presiona el botón de reproducción nuevamente.");
-              
-              // Preparar para reproducción manual
-              isPlaying = false;
-              updatePlayPauseButton();
-              updateFullPlayerButton();
-            });
-        }
-      } catch (error) {
-        console.error("Error en continuePlayingSong:", error);
-        alert("Ocurrió un error al reproducir la canción.");
-      }
-    }
-    
-    // Función auxiliar para actualizar la interfaz del reproductor
-    function updatePlayerInterface(song) {
-      // Actualizar la interfaz del reproductor
-      document.getElementById('playerCover').src = albums[currentAlbumIndex].image;
-      document.getElementById('playerCover').classList.remove('hidden');
-      document.getElementById('playerSongName').textContent = song.name;
-      document.getElementById('playerArtist').textContent = albums[currentAlbumIndex].artist;
-      
-      // Actualizar los botones
-      updatePlayPauseButton();
-      updateFullPlayerButton();
-      
-      // Si el reproductor completo está abierto, actualizar su información
-      if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
-        document.getElementById('fullPlayerCover').src = albums[currentAlbumIndex].image;
-        document.getElementById('fullPlayerTitle').textContent = song.name;
-        document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
-        updateFullPlayerProgress();
-      }
-      
-      // Configurar actualización de la barra de progreso mini
-      if (currentAudio) {
-        // Actualizar la barra de progreso mini cada segundo
-        setInterval(updateMiniProgressBar, 1000);
-      }
-    }
-    
-    // Función para actualizar la barra de progreso mini
-    function updateMiniProgressBar() {
-      if (!currentAudio) return;
-      
-      const progressPercent = (currentAudio.currentTime / currentAudio.duration) * 100;
-      const miniProgressBar = document.getElementById('miniProgressBar');
-      if (miniProgressBar) {
-        miniProgressBar.style.width = `${progressPercent}%`;
-      }
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+      initIndexedDB();
+      renderAlbums();
+      setupVolumeControl(); // Inicializar el control de volumen
+      loadColumnPreference(); // Cargar la preferencia de columnas
+      console.log("Aplicación inicializada correctamente");
+    });
   </script>
 </body>
 </html>
