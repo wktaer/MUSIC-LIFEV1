@@ -68,12 +68,20 @@
     <div id="albumListView">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold">Mis Álbumes</h2>
-        <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo Álbum
-        </button>
+        <div class="flex gap-2">
+          <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nuevo Álbum
+          </button>
+          <button onclick="showCreateFullAlbumOverlay()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Álbum Completo
+          </button>
+        </div>
       </div>
       <div id="albumsContainer" class="grid grid-cols-2 gap-6">
         <!-- Álbumes dinámicos -->
@@ -357,6 +365,74 @@
       <div class="flex justify-end gap-2">
         <button onclick="closeCreateAlbumOverlay()" class="px-4 py-2 bg-zinc-700 rounded hover:bg-zinc-600 transition-colors">Cancelar</button>
         <button onclick="createNewAlbum()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors">Crear Álbum</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay para crear un álbum completo con múltiples canciones -->
+  <div id="createFullAlbumOverlay" class="hidden fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center">
+    <div class="bg-zinc-900 p-8 rounded-2xl w-full max-w-4xl space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <h3 class="text-2xl font-bold text-white">Crear Álbum Completo</h3>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Nombre del Álbum</label>
+        <input id="fullAlbumName" type="text" placeholder="Ej: The Dark Side of the Moon" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Artista</label>
+        <input id="fullAlbumArtist" type="text" placeholder="Ej: Pink Floyd" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+      </div>
+      
+      <div class="flex gap-4 mb-4">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-zinc-400 mb-2">Año de Lanzamiento</label>
+          <input id="fullAlbumYear" type="number" min="1900" max="2099" step="1" placeholder="Ej: 1973" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+        </div>
+        
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-zinc-400 mb-2">Género</label>
+          <select id="fullAlbumGenre" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors">
+            <option value="">Selecciona un género</option>
+            <option value="Pop">Pop</option>
+            <option value="Rock">Rock</option>
+            <option value="Hip Hop">Hip Hop</option>
+            <option value="R&B">R&B</option>
+            <option value="Electrónica">Electrónica</option>
+            <option value="Jazz">Jazz</option>
+            <option value="Clásica">Clásica</option>
+            <option value="Reggaeton">Reggaeton</option>
+            <option value="Indie">Indie</option>
+            <option value="Metal">Metal</option>
+            <option value="Folk">Folk</option>
+            <option value="Country">Country</option>
+            <option value="Blues">Blues</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Portada</label>
+        <input id="fullAlbumImage" type="file" accept="image/*" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" />
+        <p class="text-xs text-zinc-500 mt-1">Formatos recomendados: JPG, PNG (tamaño cuadrado)</p>
+      </div>
+      
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-zinc-400 mb-2">Seleccionar Canciones (múltiples)</label>
+        <input id="fullAlbumSongs" type="file" accept="audio/*" multiple class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" onchange="previewSelectedSongs()" />
+        <p class="text-xs text-zinc-500 mt-1">Selecciona múltiples archivos de audio para crear el álbum completo</p>
+      </div>
+      
+      <div id="songsPreviewContainer" class="mb-6 hidden">
+        <h4 class="text-lg font-semibold text-white mb-3">Canciones Seleccionadas</h4>
+        <p class="text-sm text-zinc-400 mb-3">Asigna un nombre a cada canción:</p>
+        <div id="songsPreviewList" class="space-y-3 max-h-60 overflow-y-auto pr-2"></div>
+      </div>
+      
+      <div class="flex justify-end gap-2">
+        <button onclick="closeCreateFullAlbumOverlay()" class="px-4 py-2 bg-zinc-700 rounded hover:bg-zinc-600 transition-colors">Cancelar</button>
+        <button onclick="createFullAlbum()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500 transition-colors">Crear Álbum Completo</button>
       </div>
     </div>
   </div>
@@ -1395,95 +1471,227 @@
       updateFullPlayerButton();
     }
 
-    // Función auxiliar para continuar reproduciendo la canción
-    function continuePlayingSong(song) {
+    // Variables para el álbum completo
+    let selectedSongFiles = [];
+    
+    // Función para mostrar el overlay de creación de álbum completo
+    function showCreateFullAlbumOverlay() {
+      // Ocultar el overlay de creación de álbum normal
+      closeCreateAlbumOverlay();
+      
+      // Limpiar los campos
+      document.getElementById('fullAlbumName').value = '';
+      document.getElementById('fullAlbumArtist').value = '';
+      document.getElementById('fullAlbumYear').value = '';
+      document.getElementById('fullAlbumGenre').value = '';
+      document.getElementById('fullAlbumImage').value = '';
+      document.getElementById('fullAlbumSongs').value = '';
+      document.getElementById('songsPreviewList').innerHTML = '';
+      document.getElementById('songsPreviewContainer').classList.add('hidden');
+      
+      // Reiniciar la lista de archivos seleccionados
+      selectedSongFiles = [];
+      
+      // Mostrar el overlay
+      document.getElementById('createFullAlbumOverlay').classList.remove('hidden');
+    }
+    
+    // Función para cerrar el overlay de creación de álbum completo
+    function closeCreateFullAlbumOverlay() {
+      document.getElementById('createFullAlbumOverlay').classList.add('hidden');
+    }
+    
+    // Función para previsualizar las canciones seleccionadas
+    function previewSelectedSongs() {
+      const fileInput = document.getElementById('fullAlbumSongs');
+      const previewContainer = document.getElementById('songsPreviewContainer');
+      const previewList = document.getElementById('songsPreviewList');
+      
+      // Guardar los archivos seleccionados
+      selectedSongFiles = Array.from(fileInput.files);
+      
+      // Si no hay archivos, ocultar el contenedor de previsualización
+      if (selectedSongFiles.length === 0) {
+        previewContainer.classList.add('hidden');
+        return;
+      }
+      
+      // Mostrar el contenedor de previsualización
+      previewContainer.classList.remove('hidden');
+      
+      // Limpiar la lista de previsualización
+      previewList.innerHTML = '';
+      
+      // Crear un elemento para cada canción
+      selectedSongFiles.forEach((file, index) => {
+        // Extraer el nombre del archivo sin la extensión
+        const fileName = file.name.replace(/\.[^/.]+$/, "");
+        
+        // Crear el elemento de previsualización
+        const songPreview = document.createElement('div');
+        songPreview.className = 'bg-zinc-800 p-3 rounded flex items-center gap-3';
+        songPreview.innerHTML = `
+          <div class="text-zinc-400 w-8 text-center">${index + 1}</div>
+          <div class="flex-1">
+            <input type="text" id="songName_${index}" value="${fileName}" class="w-full p-2 rounded bg-zinc-700 text-white border border-zinc-600 focus:border-green-500 outline-none transition-colors" placeholder="Nombre de la canción" />
+          </div>
+          <div class="text-xs text-zinc-500">${formatFileSize(file.size)}</div>
+        `;
+        
+        // Añadir a la lista
+        previewList.appendChild(songPreview);
+      });
+    }
+    
+    // Función para formatear el tamaño del archivo
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Función para crear un álbum completo con múltiples canciones
+    function createFullAlbum() {
       try {
-        console.log("Continuando reproducción con:", song);
-        
-        // Crear un nuevo objeto de audio
-        currentAudio = new Audio(song.file);
-        
-        // Aplicar el volumen guardado
-        const savedVolume = localStorage.getItem('volume') || 100;
-        currentAudio.volume = savedVolume / 100;
-        
-        // Configurar eventos
-        currentAudio.addEventListener('ended', function() {
-          console.log("Canción terminada, reproduciendo siguiente");
-          playNextSong();
-        });
-        
-        currentAudio.addEventListener('loadedmetadata', function() {
-          console.log("Metadatos cargados, duración:", currentAudio.duration);
-          // Actualizar la duración en el reproductor completo
-          if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
-            const durationMinutes = Math.floor(currentAudio.duration / 60);
-            const durationSeconds = Math.floor(currentAudio.duration % 60);
-            document.getElementById('fullPlayerDuration').textContent = 
-              `${durationMinutes}:${durationSeconds.toString().padStart(2, '0')}`;
-          }
-        });
-        
-        currentAudio.addEventListener('error', function(e) {
-          console.error("Error en el elemento de audio:", e);
-          alert("Error al reproducir el archivo de audio. Es posible que el formato no sea compatible o el archivo esté dañado.");
-        });
-        
-        // Reproducir la canción
-        const playPromise = currentAudio.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.error("Error reproduciendo audio:", error);
-            alert("No se pudo iniciar la reproducción automáticamente. Haz clic en reproducir para comenzar.");
-            isPlaying = false;
-            updatePlayPauseButton();
-            updateFullPlayerButton();
-          });
+        // Validar campos obligatorios
+        const name = document.getElementById('fullAlbumName').value.trim();
+        const artist = document.getElementById('fullAlbumArtist').value.trim();
+        const year = document.getElementById('fullAlbumYear').value.trim();
+        const genre = document.getElementById('fullAlbumGenre').value;
+        const imageFile = document.getElementById('fullAlbumImage').files[0];
+
+        console.log("Nombre del álbum:", name);
+        console.log("Artista:", artist);
+        console.log("Año:", year);
+        console.log("Género:", genre);
+        console.log("Imagen:", imageFile ? imageFile.name : "No hay imagen");
+
+        if (!name) {
+          alert('Por favor, introduce el nombre del álbum');
+          return;
         }
         
-        isPlaying = true;
-        
-        // Actualizar la información en la barra del reproductor
-        document.getElementById('playerSongName').textContent = song.name;
-        document.getElementById('playerAlbumName').textContent = albums[currentAlbumIndex].name;
-        
-        // Mostrar la portada del álbum en la barra del reproductor
-        const playerCover = document.getElementById('playerCover');
-        playerCover.src = albums[currentAlbumIndex].image;
-        playerCover.classList.remove('hidden');
-        
-        // Mostrar la barra del reproductor
-        document.getElementById('playerBar').classList.remove('hidden');
-        
-        // Actualizar la interfaz
-        updatePlayPauseButton();
-        updateFullPlayerButton();
-        
-        // Actualizar la barra de progreso si el reproductor completo está visible
-        if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
-          updateFullPlayerProgress();
+        if (!artist) {
+          alert('Por favor, introduce el nombre del artista');
+          return;
         }
         
-        // Actualizar la información en el reproductor completo
-        document.getElementById('fullPlayerTitle').textContent = song.name;
-        document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
-        document.getElementById('fullPlayerCover').src = albums[currentAlbumIndex].image;
+        if (selectedSongFiles.length === 0) {
+          alert('Por favor, selecciona al menos una canción para el álbum');
+          return;
+        }
+
+        // Crear un objeto para el nuevo álbum
+        const newAlbum = {
+          name,
+          artist,
+          year,
+          genre,
+          songs: [],
+          image: 'https://via.placeholder.com/300x300?text=Sin+Imagen' // Imagen por defecto
+        };
         
-        console.log("Reproducción iniciada correctamente");
+        // Si se seleccionó una imagen, procesarla
+        if (imageFile) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            newAlbum.image = e.target.result;
+            // Procesar las canciones y guardar el álbum
+            processFullAlbumSongs(newAlbum);
+          };
+          reader.readAsDataURL(imageFile);
+        } else {
+          // Procesar las canciones sin imagen personalizada
+          processFullAlbumSongs(newAlbum);
+        }
       } catch (error) {
-        console.error("Error en continuePlayingSong:", error);
-        alert("Ocurrió un error al reproducir la canción. Por favor, inténtalo de nuevo.");
+        console.error("Error en createFullAlbum:", error);
+        alert("Error al crear el álbum completo: " + error.message);
       }
     }
-
-    // Inicializar
-    initIndexedDB();
-    renderAlbums();
-    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
-    document.getElementById('playerBar').addEventListener('click', showFullPlayer);
-    setupVolumeControl(); // Inicializar el control de volumen
-
+    
+    // Función para procesar las canciones del álbum completo
+    function processFullAlbumSongs(album) {
+      // Mostrar un indicador de carga
+      const loadingMessage = document.createElement('div');
+      loadingMessage.className = 'fixed inset-0 z-[60] bg-black bg-opacity-75 flex items-center justify-center';
+      loadingMessage.innerHTML = `
+        <div class="bg-zinc-900 p-6 rounded-lg shadow-lg text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto mb-4"></div>
+          <p class="text-white text-lg">Procesando canciones...</p>
+          <p class="text-zinc-400 text-sm" id="loadingProgress">0/${selectedSongFiles.length}</p>
+        </div>
+      `;
+      document.body.appendChild(loadingMessage);
+      
+      // Contador para el progreso
+      let processedCount = 0;
+      
+      // Función para actualizar el progreso
+      const updateProgress = () => {
+        processedCount++;
+        document.getElementById('loadingProgress').textContent = `${processedCount}/${selectedSongFiles.length}`;
+        
+        // Si todas las canciones han sido procesadas, guardar el álbum
+        if (processedCount === selectedSongFiles.length) {
+          // Guardar el álbum
+          saveNewAlbum(album);
+          
+          // Eliminar el indicador de carga
+          document.body.removeChild(loadingMessage);
+          
+          // Cerrar el overlay
+          closeCreateFullAlbumOverlay();
+        }
+      };
+      
+      // Procesar cada archivo de canción
+      selectedSongFiles.forEach((file, index) => {
+        // Obtener el nombre asignado por el usuario
+        const songNameInput = document.getElementById(`songName_${index}`);
+        const songName = songNameInput ? songNameInput.value.trim() : file.name.replace(/\.[^/.]+$/, "");
+        
+        // Guardar el archivo de audio en IndexedDB
+        saveAudioFile(file, (audioId, fileUrl) => {
+          // Crear el objeto de canción
+          const song = {
+            name: songName,
+            file: fileUrl,
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            audioId: audioId,
+            date: new Date().toISOString()
+          };
+          
+          // Añadir la canción al álbum
+          album.songs.push(song);
+          
+          // Actualizar el progreso
+          updateProgress();
+        });
+      });
+    }
+    
+    // Función para guardar el nuevo álbum
+    function saveNewAlbum(album) {
+      // Añadir el álbum al array
+      albums.push(album);
+      
+      // Guardar en localStorage
+      localStorage.setItem('albums', JSON.stringify(albums));
+      
+      // Actualizar la interfaz
+      renderAlbums();
+      
+      // Mostrar mensaje de éxito
+      alert('¡Álbum creado con éxito!');
+    }
+    
     // Función para confirmar la eliminación de un álbum
     function confirmDeleteAlbum() {
       const albumName = albums[currentAlbumIndex].name;
@@ -1749,6 +1957,174 @@
         sortOptions.classList.add('hidden');
       }
     });
+  </script>
+  <script>
+    // Inicializar la aplicación
+    initIndexedDB();
+    renderAlbums();
+    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
+    document.getElementById('playerBar').addEventListener('click', showFullPlayer);
+    setupVolumeControl(); // Inicializar el control de volumen
+  </script>
+  
+  <!-- Script de inicialización -->
+  <script>
+    // Función para continuar reproduciendo una canción después de cargar su archivo
+    function continuePlayingSong(song) {
+      try {
+        console.log("Continuando reproducción de canción:", song.name);
+        console.log("URL del archivo:", song.file);
+        
+        // Detener la canción actual si existe
+        if (currentAudio) {
+          currentAudio.pause();
+          // Liberar recursos del audio anterior
+          currentAudio.src = '';
+          currentAudio = null;
+        }
+        
+        // Verificar que la URL del archivo sea válida
+        if (!song.file || typeof song.file !== 'string' || song.file.trim() === '') {
+          console.error("URL de archivo inválida:", song.file);
+          alert("El archivo de audio no es válido. Por favor, intenta agregar la canción nuevamente.");
+          return;
+        }
+        
+        // Crear un nuevo objeto de audio
+        currentAudio = new Audio();
+        
+        // Configurar eventos antes de asignar la fuente
+        currentAudio.addEventListener('canplaythrough', function() {
+          console.log("Audio listo para reproducción sin interrupciones");
+        });
+        
+        // Configurar evento para cuando termine la canción
+        currentAudio.onended = function() {
+          console.log("Canción terminada, reproduciendo la siguiente");
+          playNextSong();
+        };
+        
+        // Configurar evento para errores
+        currentAudio.onerror = function(e) {
+          console.error("Error al reproducir el audio:", e);
+          console.error("Código de error:", currentAudio.error ? currentAudio.error.code : "desconocido");
+          
+          // Intentar recrear el blob desde IndexedDB si hay un error
+          if (song.audioId) {
+            console.log("Intentando recuperar audio nuevamente por ID:", song.audioId);
+            
+            const transaction = db.transaction(['audioFiles'], 'readonly');
+            const store = transaction.objectStore('audioFiles');
+            const request = store.get(song.audioId);
+            
+            request.onsuccess = function(event) {
+              const audioFile = event.target.result;
+              if (audioFile) {
+                console.log("Audio recuperado correctamente, intentando reproducir de nuevo");
+                const blob = new Blob([audioFile.data], { type: audioFile.type });
+                const newUrl = URL.createObjectURL(blob);
+                
+                // Actualizar la URL en el objeto de canción
+                song.file = newUrl;
+                
+                // Intentar reproducir de nuevo con la nueva URL
+                const newAudio = new Audio(newUrl);
+                currentAudio = newAudio;
+                
+                // Configurar volumen
+                const savedVolume = localStorage.getItem('volume') || 100;
+                currentAudio.volume = savedVolume / 100;
+                
+                currentAudio.play()
+                  .then(() => {
+                    console.log("Reproducción iniciada correctamente en segundo intento");
+                    isPlaying = true;
+                    updatePlayerInterface(song);
+                  })
+                  .catch(error => {
+                    console.error("Error en segundo intento:", error);
+                    alert("No se pudo reproducir la canción. Intenta con otro navegador o verifica que el archivo sea compatible.");
+                  });
+              } else {
+                alert("No se pudo recuperar el archivo de audio. Por favor, intenta agregar la canción nuevamente.");
+              }
+            };
+          } else {
+            alert("Error al reproducir la canción. Por favor, inténtalo de nuevo.");
+          }
+          
+          isPlaying = false;
+          updatePlayPauseButton();
+          updateFullPlayerButton();
+        };
+        
+        // Configurar el volumen según el valor guardado
+        const savedVolume = localStorage.getItem('volume') || 100;
+        currentAudio.volume = savedVolume / 100;
+        
+        // Asignar la fuente después de configurar los eventos
+        currentAudio.src = song.file;
+        
+        // Cargar el audio
+        currentAudio.load();
+        
+        // Iniciar la reproducción
+        const playPromise = currentAudio.play();
+        
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log("Reproducción iniciada correctamente");
+              isPlaying = true;
+              updatePlayerInterface(song);
+            })
+            .catch(error => {
+              console.error("Error al iniciar la reproducción:", error);
+              
+              // Intentar reproducir después de una interacción del usuario
+              alert("Para reproducir música, haz clic en 'Aceptar' y luego presiona el botón de reproducción nuevamente.");
+              
+              // Preparar para reproducción manual
+              isPlaying = false;
+              updatePlayPauseButton();
+              updateFullPlayerButton();
+            });
+        }
+      } catch (error) {
+        console.error("Error en continuePlayingSong:", error);
+        alert("Ocurrió un error al reproducir la canción.");
+      }
+    }
+    
+    // Función auxiliar para actualizar la interfaz del reproductor
+    function updatePlayerInterface(song) {
+      // Actualizar la interfaz del reproductor
+      document.getElementById('playerCover').src = albums[currentAlbumIndex].image;
+      document.getElementById('playerCover').classList.remove('hidden');
+      document.getElementById('playerTitle').textContent = song.name;
+      document.getElementById('playerArtist').textContent = albums[currentAlbumIndex].artist;
+      
+      // Actualizar los botones
+      updatePlayPauseButton();
+      updateFullPlayerButton();
+      
+      // Si el reproductor completo está abierto, actualizar su información
+      if (!document.getElementById('fullPlayerOverlay').classList.contains('hidden')) {
+        document.getElementById('fullPlayerCover').src = albums[currentAlbumIndex].image;
+        document.getElementById('fullPlayerTitle').textContent = song.name;
+        document.getElementById('fullPlayerArtist').textContent = albums[currentAlbumIndex].artist;
+        updateFullPlayerProgress();
+      }
+    }
+  </script>
+  
+  <script>
+    // Inicializar la aplicación
+    initIndexedDB();
+    renderAlbums();
+    document.getElementById('playPauseButton').addEventListener('click', togglePlayPause);
+    document.getElementById('playerBar').addEventListener('click', showFullPlayer);
+    setupVolumeControl(); // Inicializar el control de volumen
   </script>
 </body>
 </html>
