@@ -68,7 +68,7 @@
     <div id="albumListView">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold">Mis Álbumes</h2>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -79,7 +79,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Álbum Completo
+            <span class="whitespace-nowrap">Álbum Completo</span>
           </button>
         </div>
       </div>
@@ -426,7 +426,7 @@
       
       <div class="mb-6">
         <label class="block text-sm font-medium text-zinc-400 mb-2">Seleccionar Canciones (múltiples)</label>
-        <input id="fullAlbumSongs" type="file" accept="audio/*" multiple class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" onchange="previewSelectedSongs()" />
+        <input id="fullAlbumSongs" type="file" accept="audio/*" multiple capture="filesystem" class="w-full p-3 rounded bg-zinc-800 text-white border border-zinc-700 focus:border-green-500 outline-none transition-colors" onchange="previewSelectedSongs()" />
         <p class="text-xs text-zinc-500 mt-1">Selecciona múltiples archivos de audio para crear el álbum completo</p>
       </div>
       
