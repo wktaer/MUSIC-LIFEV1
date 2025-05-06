@@ -184,9 +184,9 @@
     
     <!-- Album List View -->
     <div id="albumListView">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-bold">Mis Álbumes</h2>
-        <div class="flex flex-wrap gap-2">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+        <h2 class="text-2xl md:text-3xl font-bold">Mis Álbumes</h2>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
           <div class="flex items-center bg-zinc-800 rounded-lg p-1 mr-2">
             <button onclick="setAlbumColumns(1)" id="oneColumnBtn" class="px-3 py-1 rounded-lg transition-colors" title="Una columna">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -199,22 +199,34 @@
               </svg>
             </button>
           </div>
-          <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2">
+          <button onclick="showCreateAlbumOverlay()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-500 transition-colors flex items-center gap-2 min-h-[44px]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Nuevo Álbum
           </button>
-          <button onclick="showCreateFullAlbumOverlay()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors flex items-center gap-2">
+          <button onclick="showCreateFullAlbumOverlay()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors flex items-center gap-2 min-h-[44px]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             <span class="whitespace-nowrap">Álbum Completo</span>
           </button>
+          <button onclick="window.AndroidInterface && window.AndroidInterface.abrirSelector()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors flex items-center gap-2 min-h-[44px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+            <span class="whitespace-nowrap">Cargar mis canciones</span>
+          </button>
         </div>
       </div>
       <div id="albumsContainer" class="grid grid-cols-2 gap-6">
         <!-- Álbumes dinámicos -->
+      </div>
+      
+      <!-- Contenedor para canciones cargadas desde Android -->
+      <div id="androidSongsContainer" class="mt-8 hidden">
+        <h2 class="text-2xl font-bold mb-4">Mis Canciones desde Android</h2>
+        <div id="misCanciones" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </div>
     </div>
 
@@ -2211,6 +2223,172 @@
       loadColumnPreference(); // Cargar la preferencia de columnas
       console.log("Aplicación inicializada correctamente");
     });
+  </script>
+  
+  <script>
+    // Función para mostrar canciones recibidas desde la aplicación Android
+    function mostrarCancionesDesdeApp(json) {
+      try {
+        const canciones = JSON.parse(json);
+        const contenedor = document.getElementById('misCanciones');
+        const container = document.getElementById('androidSongsContainer');
+        
+        // Mostrar el contenedor
+        container.classList.remove('hidden');
+        
+        // Limpiar el contenedor
+        contenedor.innerHTML = '';
+        
+        // Si no hay canciones, mostrar mensaje
+        if (!canciones || canciones.length === 0) {
+          contenedor.innerHTML = '<p class="text-zinc-400 text-center py-4">No se encontraron canciones</p>';
+          return;
+        }
+        
+        // Mostrar las canciones
+        canciones.forEach(c => {
+          const songElement = document.createElement('div');
+          songElement.className = 'bg-zinc-800 rounded-lg p-4 flex flex-col gap-2';
+          songElement.innerHTML = `
+            <p class="text-white font-medium truncate">${c.nombre || 'Canción sin título'}</p>
+            <audio controls src="${c.ruta}" class="w-full" preload="none"></audio>
+            <button onclick="agregarCancionDesdeAndroid('${c.nombre}', '${c.ruta}')" class="mt-2 text-green-500 hover:text-green-400 text-sm flex items-center justify-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Agregar a un álbum
+            </button>
+          `;
+          contenedor.appendChild(songElement);
+        });
+        
+        // Desplazarse al contenedor de canciones
+        setTimeout(() => {
+          container.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+        
+      } catch (error) {
+        console.error("Error al procesar las canciones:", error);
+        alert("Error al procesar las canciones recibidas desde Android");
+      }
+    }
+    
+    // Función para agregar una canción desde Android a un álbum
+    function agregarCancionDesdeAndroid(nombre, ruta) {
+      try {
+        // Mostrar selector de álbum
+        const select = document.getElementById('songAlbumSelect');
+        select.innerHTML = '';
+        albums.forEach((album, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = album.name;
+          select.appendChild(option);
+        });
+        
+        // Rellenar el nombre de la canción
+        document.getElementById('songName').value = nombre;
+        
+        // Guardar la ruta para usarla después
+        window.androidSongPath = ruta;
+        
+        // Mostrar el overlay
+        document.getElementById('songOverlay').classList.remove('hidden');
+        
+        // Añadir un mensaje informativo
+        const infoMsg = document.createElement('p');
+        infoMsg.id = 'androidSongInfo';
+        infoMsg.className = 'text-green-500 text-sm mt-2';
+        infoMsg.textContent = 'Canción seleccionada desde Android';
+        document.getElementById('songOverlay').querySelector('.mb-6').appendChild(infoMsg);
+        
+      } catch (error) {
+        console.error("Error al preparar la canción para añadir:", error);
+        alert("Error al preparar la canción para añadir al álbum");
+      }
+    }
+    
+    // Modificar la función addSongFromOverlay para manejar canciones de Android
+    const originalAddSongFunction = window.addSongFromOverlay;
+    window.addSongFromOverlay = function() {
+      try {
+        // Si tenemos una ruta de Android, usar esa en lugar del archivo
+        if (window.androidSongPath) {
+          const albumSelect = document.getElementById('songAlbumSelect');
+          const albumIndex = parseInt(albumSelect.value);
+          const name = document.getElementById('songName').value;
+          
+          if (!name) {
+            alert('Completa el nombre de la canción');
+            return;
+          }
+          
+          if (isNaN(albumIndex) || albumIndex < 0 || albumIndex >= albums.length) {
+            alert('Selecciona un álbum válido');
+            return;
+          }
+          
+          // Crear objeto de canción con la ruta de Android
+          const song = { 
+            name, 
+            file: window.androidSongPath,
+            fileName: name,
+            fileType: 'audio/mpeg',
+            androidSource: true
+          };
+          
+          // Agregar la canción al álbum
+          if (!albums[albumIndex].songs) {
+            albums[albumIndex].songs = [];
+          }
+          
+          albums[albumIndex].songs.push(song);
+          localStorage.setItem('albums', JSON.stringify(albums));
+          
+          // Si estamos en la vista de detalle del álbum al que se agregó la canción
+          if (currentAlbumIndex === albumIndex) {
+            renderDetailSongs();
+          }
+          
+          // Limpiar la ruta de Android
+          window.androidSongPath = null;
+          
+          // Cerrar el overlay
+          closeSongOverlay();
+          
+          // Eliminar el mensaje informativo si existe
+          const infoMsg = document.getElementById('androidSongInfo');
+          if (infoMsg) infoMsg.remove();
+          
+          // Mostrar un mensaje de éxito
+          alert(`La canción "${name}" se ha agregado al álbum "${albums[albumIndex].name}"`);
+          
+        } else {
+          // Si no hay ruta de Android, usar la función original
+          originalAddSongFunction();
+        }
+      } catch (error) {
+        console.error("Error en addSongFromOverlay modificado:", error);
+        alert("Error al agregar la canción: " + error.message);
+        
+        // Limpiar la ruta de Android en caso de error
+        window.androidSongPath = null;
+      }
+    };
+    
+    // Modificar la función closeSongOverlay para limpiar la ruta de Android
+    const originalCloseSongFunction = window.closeSongOverlay;
+    window.closeSongOverlay = function() {
+      // Limpiar la ruta de Android
+      window.androidSongPath = null;
+      
+      // Eliminar el mensaje informativo si existe
+      const infoMsg = document.getElementById('androidSongInfo');
+      if (infoMsg) infoMsg.remove();
+      
+      // Llamar a la función original
+      originalCloseSongFunction();
+    };
   </script>
 </body>
 </html>
